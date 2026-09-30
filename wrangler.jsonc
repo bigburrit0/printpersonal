@@ -1,0 +1,8 @@
+// Configuración para publicar en Cloudflare Workers: sirve solo los archivos que arma scripts/build.sh.
+{
+  "name": "mvd-uru-3dprint-calculadora",
+  "compatibility_date": "2026-09-29",
+  "assets": {
+    "directory": "./_site"
+  }
+}

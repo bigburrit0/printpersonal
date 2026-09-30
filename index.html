@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Costo de Impresión A1</title>
+<meta name="theme-color" content="#EEF1F0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0A0E0E" media="(prefers-color-scheme: dark)">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="hero-l enter" style="--i:0">
+      <p class="eyebrow">Bambu Lab A1 · Tarifa UTE Triple Horario <span class="sync" id="syncTxt" role="status"></span></p>
+      <input id="projName" type="text" maxlength="80" aria-label="Nombre del proyecto" placeholder="Nombre del proyecto">
+      <div class="toolbar">
+        <button type="button" class="btn" id="projBtn" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Proyectos <span class="badge" id="projCount"></span></button>
+        <button type="button" class="btn" id="copyBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>Copiar resumen</button>
+        <button type="button" class="btn" id="setBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Ajustes</button>
+        <button type="button" class="btn plain" id="newProj">Nuevo proyecto</button>
+      </div>
+    </div>
+    <div class="herostats enter" style="--i:1">
+      <div class="stat"><span class="m">Costo total</span><span class="v" id="projTotal">$0,00</span><span class="s" id="projMeta"></span></div>
+      <div class="stat"><span class="m">Filamento total</span><span class="v" id="projGrams">0 g</span><span class="s" id="projHours"></span></div>
+      <div class="stat sale"><span class="m">Precio mínimo</span><span class="v" id="projSale">$0</span><span class="s" id="projSaleX"></span></div>
+    </div>
+  </header>
+
+  <div class="glassbar enter" style="--i:2" aria-label="Impresiones del proyecto">
+    <div class="tabs" role="tablist" aria-label="Impresiones" id="tabs"></div>
+    <div class="bartotal" aria-label="Totales del proyecto"><span class="bt"><small>Total</small><b id="barTotal">$0,00</b></span><span class="bt"><small>Peso</small><b id="barGrams">0 g</b></span><span class="bt sale"><small>Precio mín.</small><b id="barSale">$0</b></span></div>
+    <button type="button" class="btn prominent" id="addBtn" aria-label="Agregar impresión"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Impresión</span></button>
+  </div>
+
+  <div id="copyWrap" class="card" hidden>
+    <p class="sub" style="margin:0 0 8px">No se pudo copiar automáticamente. Seleccioná el texto y copialo:</p>
+    <textarea id="copyBox" readonly style="width:100%;min-height:150px;font-family:var(--mono);font-size:13px;background:var(--bg);color:var(--ink);border:0;border-radius:12px;padding:12px"></textarea>
+  </div>
+
+  <div class="grid">
+    <form class="card enter" style="--i:4" id="form" autocomplete="off">
+      <div class="card-h">
+        <h2>Datos de la impresión</h2>
+        <div style="display:flex;gap:2px;flex:none">
+          <button type="button" class="btn plain" id="dupBtn" title="Crea una copia que arranca cuando termina esta">Duplicar</button>
+          <button type="button" class="btn plain destructive" id="delBtn">Eliminar</button>
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="rowi name"><input id="pname" type="text" maxlength="60" placeholder="Nombre, ej.: Placa 1" aria-label="Nombre de la impresión" enterkeyhint="next"></div>
+      </div>
+
+      <p class="sect">Pieza</p>
+      <div class="group">
+        <div class="rowi"><label for="peso">Peso</label><div class="val"><input id="peso" class="w-num" type="number" min="0" step="0.1" inputmode="decimal" enterkeyhint="next"><span class="unit">g</span></div></div>
+        <div class="rowi"><span class="lbl" id="durL">Duración</span><div class="val" role="group" aria-labelledby="durL"><input id="horas" class="w-sm" type="number" min="0" step="1" inputmode="numeric" aria-label="Horas" enterkeyhint="next"><span class="unit">h</span><input id="mins" class="w-sm" type="number" min="0" max="59" step="1" inputmode="numeric" aria-label="Minutos" enterkeyhint="done"><span class="unit">min</span></div></div>
+      </div>
+
+      <p class="sect">Material</p>
+      <div class="group">
+        <button type="button" class="matbtn" id="matBtn" aria-haspopup="dialog">
+          <span class="t"><b id="matName"></b><small id="matSub"></small></span><span class="chev" aria-hidden="true">›</span>
+        </button>
+      </div>
+      <div class="group" id="customBox" hidden style="margin-top:10px">
+        <div class="rowi"><label for="cPrecio">Precio de la bobina</label><div class="val"><input id="cPrecio" class="w-num" type="number" min="0" step="0.01" inputmode="decimal"><span class="unit">US$</span></div></div>
+        <div class="rowi"><label for="cGramos">Peso de la bobina</label><div class="val"><input id="cGramos" class="w-num" type="number" min="1" step="1" inputmode="numeric"><span class="unit">g</span></div></div>
+      </div>
+      <p class="note" id="matinfo"></p>
+
+      <p class="sect">Inicio</p>
+      <div class="group">
+        <div class="rowi inicio"><span class="lbl" id="iniL">Fecha y hora</span><div class="val" role="group" aria-labelledby="iniL"><input id="fecha" type="date" aria-label="Fecha de inicio"><input id="hora" type="time" aria-label="Hora de inicio"></div></div>
+        <div class="rowi"><label for="feriado">Feriado <span class="sub">· sin punta</span></label><input id="feriado" class="switch" type="checkbox" role="switch"></div>
+        <div class="rowi"><label for="arranque">Calentamiento y calibración</label><input id="arranque" class="switch" type="checkbox" role="switch"></div>
+      </div>
+      <p class="err" id="err" hidden></p>
+    </form>
+
+    <section class="card result enter" style="--i:3" id="result" aria-live="polite">
+      <div class="card-h" style="margin:0"><h2 id="resLabel">Costo</h2></div>
+      <div class="rbody">
+        <div class="ptotal">
+          <div><span class="m">Costo de esta impresión</span><span class="v" id="pCost">$0,00</span></div>
+          <div><span class="m">Peso</span><span class="v" id="pGrams">0 g</span></div>
+          <div class="sale"><span class="m">Precio mínimo</span><span class="v" id="pSale">$0</span><span class="x" id="pSaleX"></span></div>
+          <p class="sub" id="totalSub"></p>
+        </div>
+        <div class="dialwrap">
+          <svg class="dial" id="dial" viewBox="0 0 260 260" role="img" aria-label="">
+            <circle cx="130" cy="130" r="104" fill="none" stroke="var(--fill)" stroke-width="16"/>
+            <g id="ring"></g>
+            <g id="ticks"></g>
+            <circle cx="130" cy="130" r="80" fill="none" stroke="var(--fill)" stroke-width="10"/>
+            <g class="rot" id="arcRot"><circle id="arc" cx="130" cy="130" r="80" fill="none" stroke="var(--ink)" stroke-width="10" stroke-linecap="round" pathLength="100" stroke-dasharray="0 100" transform="rotate(-90 130 130)"/></g>
+            <g class="rot" id="endRot"><circle cx="130" cy="50" r="6" fill="var(--card)" stroke="var(--ink)" stroke-width="3"/></g>
+            <g class="rot" id="startRot"><circle cx="130" cy="50" r="7" fill="var(--accent)" stroke="var(--card)" stroke-width="2.5"/></g>
+            <text class="ct" id="dialH" x="130" y="136" text-anchor="middle">—</text>
+            <text class="cs" id="dialT" x="130" y="156" text-anchor="middle"></text>
+          </svg>
+          <div class="facts">
+            <div class="split">
+              <div><small>Filamento</small><b id="fil">$0,00</b><span id="filPct"></span></div>
+              <div><small>Energía</small><b id="ene">$0,00</b><span id="enePct"></span></div>
+            </div>
+            <div class="bands" id="bands">
+              <div class="band" data-b="valle"><span class="sym p-valle" aria-hidden="true">V</span><span class="n">Valle</span><span class="h"></span><span class="c"></span><span class="bar"><i style="background:var(--valle);transform:scaleX(0)"></i></span></div>
+              <div class="band" data-b="llano"><span class="sym p-llano" aria-hidden="true">L</span><span class="n">Llano</span><span class="h"></span><span class="c"></span><span class="bar"><i style="background:var(--llano);transform:scaleX(0)"></i></span></div>
+              <div class="band" data-b="punta"><span class="sym p-punta" aria-hidden="true">P</span><span class="n">Punta</span><span class="h"></span><span class="c"></span><span class="bar"><i style="background:var(--punta);transform:scaleX(0)"></i></span></div>
+            </div>
+          </div>
+        </div>
+        <div class="tip" id="tip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span id="tipTxt"></span></div>
+        <details class="steps" id="steps" open>
+          <summary>Cálculo paso a paso</summary>
+          <div class="steplist" id="steplist"></div>
+        </details>
+      </div>
+    </section>
+  </div>
+
+  <section class="card enter" style="--i:5" id="summary" aria-label="Resumen del proyecto">
+    <div class="card-h"><h2>Resumen del proyecto</h2><span class="sub" id="mixLabel" style="text-align:right"></span></div>
+    <div class="mix" id="mixbar" aria-hidden="true"><i id="mixF" style="background:var(--ink);flex-grow:1"></i><i id="mixE" style="background:var(--accent);flex-grow:0"></i></div>
+    <div class="plist" id="plist"></div>
+    <div class="ptot"><span>Costo total</span><b id="sumTotal">$0,00</b><span class="m" id="sumMeta"></span><span class="m" id="sumSplit" style="text-align:right"></span>
+      <span class="sl">Precio mínimo</span><b class="sl" id="sumSale">$0</b><span class="m" id="sumSaleX"></span><span class="m" id="sumMargin" style="text-align:right"></span></div>
+    <p class="sub" id="sumHint" style="margin:10px 4px 0"></p>
+  </section>
+
+  <footer>
+    <p>Precios de filamento en dólares, de proyectocolor.uy y macrotec.com.uy (24/09/2026). No aclaran si incluyen IVA; se pasan a pesos con el dólar de Ajustes.</p>
+    <p>Consumo de la A1: impresión PLA 95 W, ABS 200 W y PC 150 W de promedio, y resistencia de cama 47,5 Ω, según la wiki oficial de Bambu Lab. Los ~4 min de arranque a ~120 W vienen del foro de usuarios. Los 2 min de calentamiento de cama son una estimación. PETG, TPU y nylon usan el valor de PLA. El arranque se descuenta de la duración total.</p>
+    <p>Precio mínimo de venta = filamento × 2 + energía × 1,5, redondeado hacia arriba a $10 (se cambia en Ajustes). El margen es el precio redondeado menos el costo.</p>
+    <p>Fines de semana y feriados: sin punta, de 07:00 a 24:00 es llano. Cálculos intermedios con 4 decimales, resultados a 2. El proyecto se guarda en este navegador.</p>
+  </footer>
+</div>
+
+<!-- dock inferior (teléfono) -->
+<div class="dock" id="dock" aria-label="Resumen rápido">
+  <div class="d">
+    <div><small id="dockName">Esta impresión</small><b id="dockCost">$0,00</b><span id="dockGrams">0 g</span></div>
+    <div><small>Proyecto</small><b id="dockTotal">$0,00</b><span id="dockPGrams">0 g</span></div>
+  </div>
+  <button type="button" class="btn prominent" id="dockAdd" aria-label="Agregar impresión"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+</div>
+
+<!-- hoja: material -->
+<dialog class="sheet" id="matSheet" aria-labelledby="matSheetT">
+  <div class="sheet-top"><div class="grabber" aria-hidden="true"></div>
+  <div class="sheet-h"><span class="l"></span><h3 id="matSheetT">Material</h3><button type="button" class="btn plain r" id="matClose">Cancelar</button></div></div>
+  <div class="sheet-b fixed" style="padding-bottom:10px">
+    <div class="searchf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="matSearch" type="search" role="combobox" aria-autocomplete="list" aria-expanded="true" aria-controls="matList" placeholder="Buscar: petg, seda, bambu, 3n3…" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" enterkeyhint="done"></div>
+    <div class="seg" role="group" aria-label="Tienda" id="scope">
+      <span class="thumb" id="segThumb" aria-hidden="true"></span>
+      <button type="button" data-s="" aria-pressed="true">Todas</button>
+      <button type="button" data-s="Proyecto Color" aria-pressed="false">Proyecto Color</button>
+      <button type="button" data-s="Macrotec" aria-pressed="false">Macrotec</button>
+    </div>
+    <div class="tokens" id="tokens" aria-label="Búsquedas sugeridas"></div>
+  </div>
+  <div class="sheet-b scroll" style="padding-top:0">
+    <div class="list" id="matList" role="listbox" aria-label="Filamentos"></div>
+  </div>
+</dialog>
+
+<!-- hoja: proyectos -->
+<dialog class="sheet" id="projSheet" aria-labelledby="projSheetT">
+  <div class="sheet-top"><div class="grabber" aria-hidden="true"></div>
+  <div class="sheet-h"><button type="button" class="btn plain l" id="projNew">Nuevo</button><h3 id="projSheetT">Proyectos</h3><button type="button" class="btn plain r" id="projClose" style="font-weight:700">Listo</button></div></div>
+  <div class="sheet-b scroll">
+    <p class="sub" id="projSyncNote" style="margin:0 4px"></p>
+    <div class="projlist" id="projList" role="list"></div>
+  </div>
+  <div class="sheet-b fixed backup">
+    <div class="backup-h"><span class="t">Copia de seguridad</span><span class="sub" id="backupNote"></span></div>
+    <div class="backup-btns">
+      <button type="button" class="btn" id="exportBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Exportar</button>
+      <button type="button" class="btn" id="importBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20V9M7 14l5-5 5 5M5 4h14"/></svg>Importar</button>
+    </div>
+    <input type="file" id="importFile" hidden>
+  </div>
+</dialog>
+
+<!-- hoja: ajustes -->
+<dialog class="sheet" id="setSheet" aria-labelledby="setSheetT">
+  <div class="sheet-top"><div class="grabber" aria-hidden="true"></div>
+  <div class="sheet-h"><button type="button" class="btn plain l" id="reset">Restaurar</button><h3 id="setSheetT">Ajustes</h3><button type="button" class="btn plain r" id="setClose" style="font-weight:700">Listo</button></div></div>
+  <div class="sheet-b scroll" id="setBody">
+    <p class="sub" style="margin:0 4px">Valen para todas las impresiones del proyecto.</p>
+    <p class="sect">Moneda</p>
+    <div class="group"><div class="rowi"><label for="dolar">Dólar BROU venta</label><div class="val"><span class="unit">$</span><input id="dolar" class="w-num" type="number" min="0" step="0.01" inputmode="decimal"></div></div></div>
+    <p class="sect">Precio de venta</p>
+    <div class="group">
+      <div class="rowi"><label for="mFil">Filamento ×</label><input id="mFil" class="w-sm" type="number" min="0" step="0.1" inputmode="decimal"></div>
+      <div class="rowi"><label for="mEne">Energía ×</label><input id="mEne" class="w-sm" type="number" min="0" step="0.1" inputmode="decimal"></div>
+      <div class="rowi"><label for="redondeo">Redondear hacia arriba a</label><div class="val"><span class="unit">$</span><input id="redondeo" class="w-sm" type="number" min="0" step="1" inputmode="numeric"></div></div>
+    </div>
+    <p class="note" id="saleInfo"></p>
+    <p class="sect">Tarifa UTE con IVA ($/kWh)</p>
+    <div class="group">
+      <div class="rowi"><label for="pValle"><span class="pill p-valle">Valle</span> 00–07</label><input id="pValle" class="w-num" type="number" min="0" step="0.0001" inputmode="decimal"></div>
+      <div class="rowi"><label for="pLlano"><span class="pill p-llano">Llano</span> 07–17 · 23–24</label><input id="pLlano" class="w-num" type="number" min="0" step="0.0001" inputmode="decimal"></div>
+      <div class="rowi"><label for="pPunta"><span class="pill p-punta">Punta</span> 17–23 hábiles</label><input id="pPunta" class="w-num" type="number" min="0" step="0.0001" inputmode="decimal"></div>
+    </div>
+    <p class="sect">Impresión: promedio según material</p>
+    <div class="group">
+      <div class="rowi"><label for="wPLA">PLA y otros<span class="tagx of">Oficial</span></label><div class="val"><input id="wPLA" class="w-sm" type="number" min="0" step="1" inputmode="numeric"><span class="unit">W</span></div></div>
+      <div class="rowi"><label for="wABS">ABS / ASA<span class="tagx of">Oficial</span></label><div class="val"><input id="wABS" class="w-sm" type="number" min="0" step="1" inputmode="numeric"><span class="unit">W</span></div></div>
+      <div class="rowi"><label for="wPC">PC<span class="tagx of">Oficial</span></label><div class="val"><input id="wPC" class="w-sm" type="number" min="0" step="1" inputmode="numeric"><span class="unit">W</span></div></div>
+    </div>
+    <p class="sect">Calentamiento de cama</p>
+    <div class="group">
+      <div class="rowi"><label for="volt">Tensión de red</label><div class="val"><input id="volt" class="w-sm" type="number" min="0" step="1" inputmode="numeric"><span class="unit">V</span></div></div>
+      <div class="rowi"><label for="rBed">Resistencia<span class="tagx of">Oficial</span></label><div class="val"><input id="rBed" class="w-sm" type="number" min="1" step="0.1" inputmode="decimal"><span class="unit">Ω</span></div></div>
+      <div class="rowi"><label for="tBed">Duración<span class="tagx">Estimado</span></label><div class="val"><input id="tBed" class="w-sm" type="number" min="0" step="0.5" inputmode="decimal"><span class="unit">min</span></div></div>
+    </div>
+    <p class="note" id="bedInfo"></p>
+    <p class="sect">Arranque y calibración</p>
+    <div class="group">
+      <div class="rowi"><label for="tCal">Duración<span class="tagx">Foro</span></label><div class="val"><input id="tCal" class="w-sm" type="number" min="0" step="0.5" inputmode="decimal"><span class="unit">min</span></div></div>
+      <div class="rowi"><label for="wCal">Consumo<span class="tagx">Foro</span></label><div class="val"><input id="wCal" class="w-sm" type="number" min="0" step="1" inputmode="numeric"><span class="unit">W</span></div></div>
+    </div>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status" hidden><span id="toastMsg"></span><button type="button" class="btn plain" id="toastUndo" hidden>Deshacer</button><button type="button" class="x" id="toastX" aria-label="Cerrar aviso">✕</button></div>
+
+<script src="data/filamentos.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
