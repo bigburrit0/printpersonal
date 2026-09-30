@@ -2,6 +2,10 @@
 {
   "name": "mvd-uru-3dprint-calculadora",
   "compatibility_date": "2026-09-29",
+  // arma _site/ antes de publicar, aunque el panel de Cloudflare no tenga comando de build
+  "build": {
+    "command": "sh scripts/build.sh"
+  },
   "assets": {
     "directory": "./_site"
   }
